@@ -10,6 +10,12 @@ terraform {
 
     }
   }
+  backend "azurerm" {
+    resource_group_name = "rg-jenkins-01"
+    storage_account_name = "stjenkins01"
+    container_name = "tfstate"
+    key = "sp=racwdli&st=2023-06-23T19:35:02Z&se=2023-06-24T03:35:02Z&spr=https&sv=2022-11-02&sr=c&sig=gBBB4XN2Le2uRs35YBgW2eH88O1gEY8b%2FPt%2BvwveeTE%3D"
+  }
 }
 
 ###########################
