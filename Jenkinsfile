@@ -3,7 +3,7 @@ pipeline {
 
     environment {
     // Set Azure credentials for the deployment
-    AZURE_CREDENTIALS = credentials('Azure')
+    AZURE_CREDENTIALS = credentials('azure-rthao-service-principle')
 }
 
     stages {
