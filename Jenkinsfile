@@ -3,21 +3,21 @@ pipeline {
 
     stages {
 
-        // stage('Initialize') {
-        //     steps {
-        //         // Install Terraform
-        //         sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
-        //         sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
-        //         sh 'mv terraform /usr/local/bin/'
+        stage('Initialize') {
+            steps {
+                // Install Terraform
+                sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
+                sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
+                sh 'mv terraform /usr/local/bin/'
 
-        //         // Initialize Azure credentials
-        //         // azureCredentialsBinding(
-        //         //     credentialsId: 'your-azure-credentials-id',
-        //         //     subscriptionId: 'your-subscription-id',
-        //         //     tenantId: 'your-tenant-id'
-        //         // )
-        //     }
-        // }
+                // Initialize Azure credentials
+                // azureCredentialsBinding(
+                //     credentialsId: 'your-azure-credentials-id',
+                //     subscriptionId: 'your-subscription-id',
+                //     tenantId: 'your-tenant-id'
+                // )
+            }
+        }
 
         stage('Deploy') {
             environment {
@@ -30,7 +30,6 @@ pipeline {
             }
             steps {
                 // Deploy Terraform infrastructure to Azure
-                sh 'terraform init'
                 sh 'terraform plan -out=tfplan'
                 sh 'terraform apply -input=false tfplan'
             }
