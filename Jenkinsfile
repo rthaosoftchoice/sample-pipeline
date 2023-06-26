@@ -1,8 +1,6 @@
 pipeline{
     agent any 
-    tools {
-        "org.Azureci.plugins.terraform.TerraformInstallation" "terraform"
-    }
+
     environment {
         TF_HOME = tool('terraform')
         // TF_VERSION = "1.5.1" // Replace with your desired Terraform version        
