@@ -1,115 +1,47 @@
-pipeline{
-    agent any 
+pipeline {
+    agent any
 
-    environment {
-        TF_HOME = tool('terraform')
-        // TF_VERSION = "1.5.1" // Replace with your desired Terraform version        
-        TF_IN_AUTOMATION = "true"
-        PATH = "$TF_HOME:$PATH"
-    }
     stages {
-    //     stage('Install Terraform') {
-    //         steps {
-    //             sh "curl -LO https://releases.hashicorp.com/terraform/${env.TF_VERSION}/terraform_${env.TF_VERSION}_linux_amd64.zip"
-    //             sh "unzip terraform_${env.TF_VERSION}_linux_amd64.zip"
-    //             sh "chmod +x terraform"
-    //             sh "sudo mv terraform /usr/local/bin/"
-    //             sh "terraform version"
-    //         }
-    //     }
 
-        stage('Terraform Init'){
-            
+        stage('Initialize') {
             steps {
-                    withCredentials([azureServicePrincipal(
-                    credentialsId: 'Azure',
-                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
-                    clientIdVariable: 'AZURE_CLIENT_ID',
-                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
-                    tenantIdVariable: 'AZURE_TENANT_ID'
-                ), string(credentialsId: 'access_key', variable: 'AZURE_ACCESS_KEY')]) {
-                        
-                        sh """
-                                
-                        echo "Initialising Terraform"
-                        terraform init
-                        """
-                           }
-             }
-        }
+                // Install Terraform
+                sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
+                sh 'unzip terraform_0.15.4_linux_amd64.zip'
+                sh 'sudo mv terraform /usr/local/bin/'
 
-        stage('Terraform Validate'){
-            
-            steps {
-                    ansiColor('xterm') {
-                    withCredentials([azureServicePrincipal(
-                    credentialsId: 'Azure',
-                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
-                    clientIdVariable: 'AZURE_CLIENT_ID',
-                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
-                    tenantIdVariable: 'AZURE_TENANT_ID'
-                ), string(credentialsId: 'access_key', variable: 'AZURE_ACCESS_KEY')]) {
-                        
-                        sh """
-                                
-                        terraform validate
-                        """
-                           }
-                    }
-             }
-        }
-
-        stage('Terraform Plan'){
-            steps {
-
-                    ansiColor('xterm') {
-                    withCredentials([azureServicePrincipal(
-                    credentialsId: 'Azure',
-                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
-                    clientIdVariable: 'AZURE_CLIENT_ID',
-                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
-                    tenantIdVariable: 'AZURE_TENANT_ID'
-                ), string(credentialsId: 'access_key', variable: 'AZURE_ACCESS_KEY')]) {
-                        
-                        sh """
-                        
-                        echo "Creating Terraform Plan"
-                        terraform plan -var "client_id=$AZURE_CLIENT_ID" -var "client_secret=$AZURE_CLIENT_SECRET" -var "subscription_id=$AZURE_SUBSCRIPTION_ID" -var "tenant_id=$AZURE_TENANT_ID"
-                        """
-                        }
-                }
+                // Initialize Azure credentials
+                // azureCredentialsBinding(
+                //     credentialsId: 'your-azure-credentials-id',
+                //     subscriptionId: 'your-subscription-id',
+                //     tenantId: 'your-tenant-id'
+                // )
             }
         }
 
-        stage('Waiting for Approval'){
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    input (message: "Deploy the infrastructure?")
-                }
+        stage('Deploy') {
+            environment {
+                // Set Azure credentials for the deployment
+                AZURE_CREDENTIALS = credentials('Azure')
             }
-        
-        }
-    
-
-        stage('Terraform Apply'){
             steps {
-                    ansiColor('xterm') {
-                    withCredentials([azureServicePrincipal(
-                    credentialsId: 'Azure',
-                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
-                    clientIdVariable: 'AZURE_CLIENT_ID',
-                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
-                    tenantIdVariable: 'AZURE_TENANT_ID'
-                ), string(credentialsId: 'access_key', variable: 'AZURE_ACCESS_KEY')]) {
-
-                        sh """
-                        echo "Applying the plan"
-                        terraform apply -auto-approve -var "client_id=$AZURE_CLIENT_ID" -var "client_secret=$AZURE_CLIENT_SECRET" -var "subscription_id=$AZURE_SUBSCRIPTION_ID" -var "tenant_id=$AZURE_TENANT_ID"
-                        """
-                                }
-                }
+                // Deploy Terraform infrastructure to Azure
+                sh 'terraform init'
+                sh 'terraform plan -out=tfplan'
+                sh 'terraform apply -input=false tfplan'
             }
         }
 
+        // stage('Destroy') {
+        //     environment {
+        //         // Set Azure credentials for the destruction
+        //         AZURE_CREDENTIALS = credentials('your-azure-credentials-id')
+        //     }
+        //     steps {
+        //         // Destroy Terraform infrastructure in Azure
+        //         sh 'terraform init'
+        //         sh 'terraform destroy -auto-approve'
+        //     }
+        // }
     }
 }
