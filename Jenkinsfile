@@ -4,60 +4,40 @@ pipeline {
     environment {
     // Set Azure credentials for the deployment
     AZURE_CREDENTIALS = credentials('Azure')
-    }
+}
 
     stages {
 
-        // stage('Initialize') {
-        //     steps {
-        //         // Install Terraform
-        //         sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
-        //         sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
-        //         sh 'mv terraform /usr/local/bin/'
-
-        //         // Initialize Azure credentials
-        //         // azureCredentialsBinding(
-        //         //     credentialsId: 'your-azure-credentials-id',
-        //         //     subscriptionId: 'your-subscription-id',
-        //         //     tenantId: 'your-tenant-id'
-        //         // )
-        //     }
-        // }
-
-        stage('Terraform Init'){
-            
+        stage('Initialize') {
             steps {
-                    withCredentials([azureServicePrincipal(
-                    credentialsId: 'Azure',
-                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
-                    clientIdVariable: 'AZURE_CLIENT_ID',
-                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
-                    tenantIdVariable: 'AZURE_TENANT_ID'
-                ), string(credentialsId: 'access_key', variable: 'AZURE_ACCESS_KEY')]) {
-                        
-                        sh """
-                                
-                        echo "Initialising Terraform"
-                        terraform init
-                        """
-                           }
-             }
+                // // Install Terraform
+                // sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
+                // sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
+                // sh 'mv terraform /usr/local/bin/'
+
+                Initialize Azure credentials
+                azureCredentialsBinding(
+                    credentialsId: 'AZURE_CREDENTIALS',
+                    subscriptionId: 'AZURE_CREDENTIALS_SUBSCRIPTION_ID',
+                    tenantId: 'AZURE_CREDENTIALS_TENANT_ID'
+                )
+            }
         }
 
-        // stage('Initilize') {
-        //     steps {
-        //         // Deploy Terraform infrastructure to Azure
-        //         sh 'terraform init'
-        //     }
-        // }
+        stage('Terraform Initilize') {
+            steps {
+                // Deploy Terraform infrastructure to Azure
+                sh 'terraform init'
+            }
+        }
 
-        // stage('Deploy') {
-        //     steps {
-        //         // Deploy Terraform infrastructure to Azure
-        //         sh 'terraform plan -out=tfplan'
-        //         sh 'terraform apply -input=false tfplan'
-        //     }        
-        // }
+        stage('Deploy') {
+            steps {
+                // Deploy Terraform infrastructure to Azure
+                sh 'terraform plan -out=tfplan'
+                sh 'terraform apply -input=false tfplan'
+            }        
+        }
 
         // stage('Destroy') {
         //     environment {
