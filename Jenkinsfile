@@ -7,7 +7,7 @@ pipeline {
             steps {
                 // Install Terraform
                 sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
-                sh 'unzip terraform_0.15.4_linux_amd64.zip'
+                sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
                 sh 'sudo mv terraform /usr/local/bin/'
 
                 // Initialize Azure credentials
