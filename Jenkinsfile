@@ -5,9 +5,19 @@ pipeline{
     }
     environment {
         TF_HOME = tool('terraform')
+        TF_VERSION = "1.5.1" // Replace with your desired Terraform version        
         TF_IN_AUTOMATION = "true"
         PATH = "$TF_HOME:$PATH"
     }
+    stage('Install Terraform') {
+            steps {
+                sh "curl -LO https://releases.hashicorp.com/terraform/${env.TF_VERSION}/terraform_${env.TF_VERSION}_linux_amd64.zip"
+                sh "unzip terraform_${env.TF_VERSION}_linux_amd64.zip"
+                sh "chmod +x terraform"
+                sh "sudo mv terraform /usr/local/bin/"
+                sh "terraform version"
+            }
+    }    
     stages {
     
         stage('Terraform Init'){
