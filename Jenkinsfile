@@ -13,7 +13,7 @@ pipeline {
                 sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
                 sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
                 sh 'pwd'
-                sh 'mv -f terraform $WORKSPACE'
+                // sh 'mv -f terraform $WORKSPACE'
             }
         }
 
@@ -36,7 +36,7 @@ pipeline {
         stage('Terraform Initilize') {
             steps {
                 // Deploy Terraform infrastructure to Azure
-                sh 'terraform init'
+                sh '/var/jenkins_home/workspace/azure-pipeline/terraform init'
             }
         }
 
