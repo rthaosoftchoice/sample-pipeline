@@ -7,6 +7,14 @@ pipeline {
 }
 
     stages {
+            stage('Initialize') {
+            steps {
+                // Install Terraform
+                sh 'curl -LO https://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip'
+                sh 'unzip -o terraform_0.15.4_linux_amd64.zip'
+                sh 'mv terraform /usr/local/bin/'
+            }
+        }
 
         // stage('Initialize') {
         //     steps {
