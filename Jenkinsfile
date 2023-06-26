@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+    // Set Azure credentials for the deployment
+    AZURE_CREDENTIALS = credentials('Azure')
+    }
+
     stages {
 
         // stage('Initialize') {
@@ -19,24 +24,40 @@ pipeline {
         //     }
         // }
 
-        stage('Initilize') {
-            environment {
-                // Set Azure credentials for the deployment
-                AZURE_CREDENTIALS = credentials('Azure')
-            }
+        stage('Terraform Init'){
+            
             steps {
-                // Deploy Terraform infrastructure to Azure
-                sh 'terraform init'
-            }
+                    withCredentials([azureServicePrincipal(
+                    credentialsId: 'Azure',
+                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
+                    clientIdVariable: 'AZURE_CLIENT_ID',
+                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
+                    tenantIdVariable: 'AZURE_TENANT_ID'
+                ), string(credentialsId: 'access_key', variable: 'AZURE_ACCESS_KEY')]) {
+                        
+                        sh """
+                                
+                        echo "Initialising Terraform"
+                        terraform init
+                        """
+                           }
+             }
         }
 
-        stage('Deploy') {
-            steps {
-                // Deploy Terraform infrastructure to Azure
-                sh 'terraform plan -out=tfplan'
-                sh 'terraform apply -input=false tfplan'
-            }        
-        }
+        // stage('Initilize') {
+        //     steps {
+        //         // Deploy Terraform infrastructure to Azure
+        //         sh 'terraform init'
+        //     }
+        // }
+
+        // stage('Deploy') {
+        //     steps {
+        //         // Deploy Terraform infrastructure to Azure
+        //         sh 'terraform plan -out=tfplan'
+        //         sh 'terraform apply -input=false tfplan'
+        //     }        
+        // }
 
         // stage('Destroy') {
         //     environment {
