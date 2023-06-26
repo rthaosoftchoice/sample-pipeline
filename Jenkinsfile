@@ -9,7 +9,8 @@ pipeline{
         TF_IN_AUTOMATION = "true"
         PATH = "$TF_HOME:$PATH"
     }
-    stage('Install Terraform') {
+    stages {
+        stage('Install Terraform') {
             steps {
                 sh "curl -LO https://releases.hashicorp.com/terraform/${env.TF_VERSION}/terraform_${env.TF_VERSION}_linux_amd64.zip"
                 sh "unzip terraform_${env.TF_VERSION}_linux_amd64.zip"
@@ -17,9 +18,8 @@ pipeline{
                 sh "sudo mv terraform /usr/local/bin/"
                 sh "terraform version"
             }
-    }    
-    stages {
-    
+        }
+        
         stage('Terraform Init'){
             
             steps {
